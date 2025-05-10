@@ -73,3 +73,18 @@ export async function updateEmotionTracker(trackerId: number, data: {
 
   return await res.json();
 }
+
+export async function deleteEmotionTracker(trackerId: number) {
+  const res = await fetch(`${API_URL}/emotion_trackers/${trackerId}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" }
+  });
+
+  if (!res.ok) {
+    const errorData = await res.text();
+    console.error("Erreur API:", errorData);
+    throw new Error("Erreur lors de la suppression du tracker");
+  }
+
+  return true;
+}

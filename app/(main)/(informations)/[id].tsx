@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native';
 import { getInformations } from '../../services/informationService';
 import { useLocalSearchParams } from 'expo-router';
+import Constants from "expo-constants";
 
-const getImageUrl = (url: string) => url.replace('localhost', '192.168.1.124');
+const IMAGE_URL = Constants.expoConfig?.extra?.IMAGE_URL;
+const getImageUrl = (url: string) => url.replace('localhost', IMAGE_URL);
 
 const InformationDetails = () => {
   const { id } = useLocalSearchParams();

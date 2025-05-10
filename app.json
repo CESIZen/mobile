@@ -8,7 +8,8 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "extra": {
-      "API_URL": "http://192.168.1.124:3000/api"
+      "API_URL": "http://192.168.1.124:3000/api",
+      "IMAGE_URL": "192.168.1.124"
     },
     "splash": {
       "image": "./assets/splash-icon.png",

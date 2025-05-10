@@ -12,6 +12,9 @@ import {
 import { getInformations } from '../../services/informationService';
 import { getCategories, type Category } from '../../services/categoryService';
 import { useRouter } from 'expo-router';
+import Constants from "expo-constants";
+
+const IMAGE_URL = Constants.expoConfig?.extra?.IMAGE_URL;
 
 export type Information = {
   id: number;
@@ -77,7 +80,6 @@ const InformationList = () => {
           onPress={() => {
             setLoading(true);
             setError(null);
-            // relancer le fetch
             const fetchData = async () => {
               try {
                 const [infoData, catData] = await Promise.all([
@@ -100,7 +102,7 @@ const InformationList = () => {
       </View>
     );
   }
-  const getImageUrl = (url: string) => url.replace('localhost', '192.168.1.124');
+  const getImageUrl = (url: string) => url.replace('localhost', IMAGE_URL);
 
   return (
     <SafeAreaView style={styles.container}>

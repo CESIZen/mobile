@@ -10,7 +10,6 @@ export const getInformations = async () => {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
-    console.log('DATADATADATADATA', JSON.stringify(data, null, 2));
     return data;
   } catch (error) {
     console.error("Error fetching informations:", error);

@@ -2,6 +2,7 @@ import React from 'react';
 import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import Header from '../../app/components/Header';
 import InformationSection from "../components/InformationSection";
+import EmotionCalendar from "../components/EmotionCalendar";
 
 export default function App() {
   return (
@@ -9,7 +10,8 @@ export default function App() {
       <Header />
       <View style={styles.content}>
         <Text style={styles.text}>Bonjour Joseph</Text>
-        <InformationSection />
+        <EmotionCalendar />
+        {/*<InformationSection />*/}
       </View>
     </SafeAreaView>
   );

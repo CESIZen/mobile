@@ -1,5 +1,6 @@
 import Constants from "expo-constants";
 import { Buffer } from 'buffer';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface LoginResponse {
   access_token: string;
@@ -62,7 +63,6 @@ export const login = async (email: string, password: string) => {
     const data: LoginResponse = await response.json();
     console.log('Données reçues:', data);
 
-    // Vérifier si la réponse contient déjà les informations utilisateur
     if (data.user) {
       return {
         user: data.user,
@@ -70,7 +70,6 @@ export const login = async (email: string, password: string) => {
       };
     }
 
-    // Sinon, décoder le token pour obtenir les infos utilisateur
     const token = data.access_token;
     const decoded = decodeToken(token);
 
@@ -80,7 +79,7 @@ export const login = async (email: string, password: string) => {
       email: decoded.email,
       roleId: decoded.roleId,
     };
-
+    await AsyncStorage.setItem('auth_token', token);
     return { user, token };
   } catch (error) {
     console.error('Erreur complète:', error);
@@ -88,7 +87,6 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-// Inscrire un utilisateur
 export const register = async (name: string, email: string, password: string) => {
   console.log(`Tentative d'inscription à ${API_URL}/auth/register avec email: ${email}`);
 

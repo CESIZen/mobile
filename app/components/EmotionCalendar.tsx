@@ -19,6 +19,8 @@ import {
   updateEmotionNote,
   updateEmotionTracker,
 } from "../services/emotionTrackerService";
+import { useAuth } from '../../context/AuthContext';
+
 
 interface Emotion {
   id: number;
@@ -60,17 +62,17 @@ const EmotionCalendar = () => {
   const [intensity, setIntensity] = useState(5);
   const [note, setNote] = useState("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const { user } = useAuth();
 
   useEffect(() => {
-    getEmotions().then(emotions => {
-      setEmotions(emotions);
-    });
-    getEmotionTypes().then(types => {
-      setEmotionTypes(types);
-    });
-    getEmotionTrackers().then(setTrackers);
-  }, []);
-
+    getEmotions().then(setEmotions);
+    getEmotionTypes().then(setEmotionTypes);
+    if (user && typeof user.id === "number") {
+      getEmotionTrackers(user.id).then(setTrackers);
+    } else {
+      setTrackers([]);
+    }
+  }, [user?.id]);
   const handleDayPress = (date: Date) => {
     // Vérifier si le jour est dans le futur
     const today = new Date();
@@ -157,7 +159,7 @@ const EmotionCalendar = () => {
             emotionId: parseInt(selectedEmotion.toString()),
             intensity,
             note: note,
-            userId: 1
+            userId: user?.id
           });
         }
 
@@ -166,12 +168,13 @@ const EmotionCalendar = () => {
         setSelectedEmotion(null);
 
         setTimeout(async () => {
-          try {
-            const freshTrackers = await getEmotionTrackers();
-            console.log("Trackers fraîchement récupérés:", freshTrackers);
-            setTrackers(freshTrackers);
-          } catch (error) {
-            console.error("Erreur lors du rafraîchissement des trackers:", error);
+          if (user && typeof user.id === "number") {
+            try {
+              const freshTrackers = await getEmotionTrackers(user.id);
+              setTrackers(freshTrackers);
+            } catch (error) {
+              console.error("Erreur lors du rafraîchissement des trackers:", error);
+            }
           }
         }, 1000);
       } catch (error) {
@@ -195,7 +198,10 @@ const EmotionCalendar = () => {
       try {
         const updatedTracker = await updateEmotionNote(tracker.id, note);
         console.log("Note enregistrée avec succès", updatedTracker);
-        const updatedTrackers = await getEmotionTrackers();
+        if (user && typeof user.id === "number") {
+          const updatedTrackers = await getEmotionTrackers(user.id);
+          setTrackers(updatedTrackers);
+        }
         setTrackers(updatedTrackers);
         setNoteModalVisible(false);
       } catch (error) {

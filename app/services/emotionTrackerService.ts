@@ -2,13 +2,13 @@ import Constants from "expo-constants";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
-export async function getEmotionTrackers() {
-  const res = await fetch(`${API_URL}/emotion_trackers`);
+export async function getEmotionTrackers(userId: number) {
+  const res = await fetch(`${API_URL}/emotion_trackers?userId=${userId}`);
   if (!res.ok) throw new Error("Erreur lors du chargement des trackers");
   return res.json();
 }
 
-export async function addEmotionTracker({date, emotionId, intensity, note = "", userId = 1}: { // MODIFIER USER ID
+export async function addEmotionTracker({date, emotionId, intensity, note = "", userId}: {
   date: Date | string;
   emotionId: number;
   intensity: number;

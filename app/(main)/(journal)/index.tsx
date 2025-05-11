@@ -4,6 +4,7 @@ import { getEmotions } from "../../services/emotionService";
 import { getEmotionTypes } from "../../services/emotionTypeService";
 import { getEmotionTrackers, updateEmotionTracker, deleteEmotionTracker } from "../../services/emotionTrackerService";
 import EmotionReport from "../../components/EmotionRapport";
+import { useAuth } from '../../../context/AuthContext';
 
 interface Emotion {
   id: number;
@@ -37,16 +38,21 @@ const JournalPage = () => {
   const [editNote, setEditNote] = useState("");
   const [editIntensity, setEditIntensity] = useState(5);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const { user } = useAuth();
 
-  const loadData = async () => {
+  useEffect(() => {
+    if (user && typeof user.id === "number") {
+      loadData(user.id);
+    }
+  }, [user?.id]);
+
+  const loadData = async (userId: number) => {
+    setLoading(true);
     try {
       const [emotionsData, emotionTypesData, trackersData] = await Promise.all([
         getEmotions(),
         getEmotionTypes(),
-        getEmotionTrackers()
+        getEmotionTrackers(userId)
       ]);
 
       setEmotions(emotionsData);
@@ -68,7 +74,7 @@ const JournalPage = () => {
   };
 
   const handleSaveEdit = async () => {
-    if (!selectedTracker) return;
+    if (!selectedTracker || !user || typeof user.id !== "number") return;
 
     try {
       await updateEmotionTracker(selectedTracker.id, {
@@ -76,7 +82,7 @@ const JournalPage = () => {
         note: editNote
       });
 
-      const updatedTrackers = await getEmotionTrackers();
+      const updatedTrackers = await getEmotionTrackers(user.id);
       setTrackers(updatedTrackers);
       setEditModalVisible(false);
     } catch (error) {
@@ -86,6 +92,7 @@ const JournalPage = () => {
   };
 
   const handleDeleteTracker = async (trackerId: number) => {
+    if (!user || typeof user.id !== "number") return;
     Alert.alert(
       "Confirmation",
       "Êtes-vous sûr de vouloir supprimer cette entrée du journal ?",
@@ -97,7 +104,7 @@ const JournalPage = () => {
           onPress: async () => {
             try {
               await deleteEmotionTracker(trackerId);
-              const updatedTrackers = await getEmotionTrackers();
+              const updatedTrackers = await getEmotionTrackers(user.id);
               setTrackers(updatedTrackers);
             } catch (error) {
               console.error("Erreur lors de la suppression:", error);

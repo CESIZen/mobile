@@ -1,7 +1,6 @@
 import { Tabs } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
-import Ionicons from "react-native-vector-icons/Ionicons";
 
 export default function MainLayout() {
   return (
@@ -30,6 +29,14 @@ export default function MainLayout() {
             headerShown: false,
             tabBarLabel: "Journal",
             tabBarIcon: () => <FontAwesome6 name="book" size={20}/>,
+          }}
+        />
+        <Tabs.Screen
+          name="(auth)"
+          options={{
+            title: "Utilisateurs",
+            headerShown: false,
+            tabBarIcon: () => <FontAwesome6 name="user-large" size={20} />,
           }}
         />
       </Tabs>

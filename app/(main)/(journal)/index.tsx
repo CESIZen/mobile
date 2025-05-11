@@ -121,7 +121,7 @@ const JournalPage = () => {
 
     const [year, month, day] = datePart.split('-').map(Number);
 
-    const date = new Date(Date.UTC(year, month - 1, day));
+    const date = new Date(Date.UTC(year, month - 1, day +1));
 
     return date.toLocaleDateString('fr-FR', {
       day: 'numeric',

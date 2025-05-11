@@ -1,40 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Modal, TextInput, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, ScrollView, Modal, TextInput } from "react-native";
 import { getEmotions } from "../../services/emotionService";
 import { getEmotionTypes } from "../../services/emotionTypeService";
 import { getEmotionTrackers, updateEmotionTracker, deleteEmotionTracker } from "../../services/emotionTrackerService";
 import EmotionReport from "../../components/EmotionRapport";
 import { useAuth } from '../../../context/AuthContext';
+import { router } from 'expo-router';
 
-interface Emotion {
-  id: number;
-  name: string;
-  color: string;
-  emotionTypeId: number;
-}
-
-interface EmotionType {
-  id: number;
-  name: string;
-}
-
-interface EmotionTracker {
-  id: number;
-  emotionId: number;
-  intensity: number;
-  note: string;
-  date: string;
-  createdAt: string;
-}
+// Définition des types pour éviter les erreurs TypeScript
+type Emotion = { id: number; name: string; color: string; };
+type Tracker = { id: number; emotionId: number; date?: string; createdAt?: string; intensity: number; note?: string; };
 
 const JournalPage = () => {
   const [emotions, setEmotions] = useState<Emotion[]>([]);
-  const [emotionTypes, setEmotionTypes] = useState<EmotionType[]>([]);
-  const [trackers, setTrackers] = useState<EmotionTracker[]>([]);
+  const [emotionTypes, setEmotionTypes] = useState<any[]>([]);
+  const [trackers, setTrackers] = useState<Tracker[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedTracker, setSelectedTracker] = useState<EmotionTracker | null>(null);
+  const [selectedTracker, setSelectedTracker] = useState<Tracker | null>(null);
   const [editNote, setEditNote] = useState("");
   const [editIntensity, setEditIntensity] = useState(5);
 
@@ -54,19 +38,17 @@ const JournalPage = () => {
         getEmotionTypes(),
         getEmotionTrackers(userId)
       ]);
-
       setEmotions(emotionsData);
       setEmotionTypes(emotionTypesData);
       setTrackers(trackersData);
     } catch (error) {
-      console.error("Erreur lors du chargement des données:", error);
       Alert.alert("Erreur", "Impossible de charger les données du journal");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditTracker = (tracker: EmotionTracker) => {
+  const handleEditTracker = (tracker: Tracker) => {
     setSelectedTracker(tracker);
     setEditNote(tracker.note || "");
     setEditIntensity(tracker.intensity);
@@ -75,18 +57,15 @@ const JournalPage = () => {
 
   const handleSaveEdit = async () => {
     if (!selectedTracker || !user || typeof user.id !== "number") return;
-
     try {
       await updateEmotionTracker(selectedTracker.id, {
         intensity: editIntensity,
         note: editNote
       });
-
       const updatedTrackers = await getEmotionTrackers(user.id);
       setTrackers(updatedTrackers);
       setEditModalVisible(false);
     } catch (error) {
-      console.error("Erreur lors de la modification:", error);
       Alert.alert("Erreur", "La modification n'a pas pu être enregistrée");
     }
   };
@@ -107,7 +86,6 @@ const JournalPage = () => {
               const updatedTrackers = await getEmotionTrackers(user.id);
               setTrackers(updatedTrackers);
             } catch (error) {
-              console.error("Erreur lors de la suppression:", error);
               Alert.alert("Erreur", "La suppression n'a pas pu être effectuée");
             }
           }
@@ -117,19 +95,15 @@ const JournalPage = () => {
   };
 
   const sortedTrackers = [...trackers].sort((a, b) => {
-    const datePartA = (a.date || a.createdAt).split('T')[0];
-    const datePartB = (b.date || b.createdAt).split('T')[0];
-
+    const datePartA = (a.date || a.createdAt || "").split('T')[0];
+    const datePartB = (b.date || b.createdAt || "").split('T')[0];
     return datePartB.localeCompare(datePartA);
   });
 
   const formatDate = (dateStr: string) => {
     const datePart = dateStr.split('T')[0];
-
     const [year, month, day] = datePart.split('-').map(Number);
-
-    const date = new Date(Date.UTC(year, month - 1, day +1));
-
+    const date = new Date(Date.UTC(year, month - 1, day + 1));
     return date.toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'long',
@@ -137,6 +111,22 @@ const JournalPage = () => {
       timeZone: 'UTC'
     });
   };
+
+  // Affichage des boutons si non connecté
+  if (!user) {
+    return (
+      <View style={[styles.container, { justifyContent: "center", alignItems: "center", backgroundColor: "#003f40" }]}>
+        <Text style={styles.title}>Journal de bord</Text>
+        <TouchableOpacity onPress={() => router.push('/(main)/(auth)/login')} style={styles.buttonContainer}>
+          <Text style={{ color: '#29d683', fontSize: 20, textAlign: 'center' }}>Se connecter</Text>
+        </TouchableOpacity>
+        <View style={{ height: 10 }} />
+        <TouchableOpacity onPress={() => router.push('/(main)/(auth)/register')} style={styles.buttonContainerLogout}>
+          <Text style={{ color: '#fff', fontSize: 20, textAlign: 'center' }}>S'inscrire</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   if (loading) {
     return (
@@ -150,62 +140,37 @@ const JournalPage = () => {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Journal de bord</Text>
-
-      {/* Composant de rapport d'émotions */}
-      <EmotionReport
-        emotions={emotions}
-        trackers={trackers}
-        emotionTypes={emotionTypes}
-      />
-
+      <EmotionReport emotions={emotions} trackers={trackers} emotionTypes={emotionTypes} />
       <Text style={styles.sectionTitle}>Historique des émotions</Text>
-
       {sortedTrackers.length === 0 ? (
         <Text style={styles.emptyMessage}>Aucune émotion enregistrée pour le moment.</Text>
       ) : (
         sortedTrackers.map(tracker => {
           const emotion = emotions.find(e => e.id === tracker.emotionId);
-          const dateStr = tracker.date || tracker.createdAt;
-
+          const dateStr = tracker.date || tracker.createdAt || "";
           return (
             <View key={tracker.id} style={styles.entry}>
               <Text style={styles.date}>{formatDate(dateStr)}</Text>
-
               <View style={styles.emotionContainer}>
-                <View
-                  style={[
-                    styles.emotionBadge,
-                    { backgroundColor: emotion?.color || "#94a3b8" }
-                  ]}
-                >
+                <View style={[styles.emotionBadge, { backgroundColor: emotion?.color || "#94a3b8" }]}>
                   <Text style={styles.emotionName}>{emotion?.name || "Inconnue"}</Text>
                 </View>
-
                 <View style={styles.intensityContainer}>
                   <Text style={styles.intensityLabel}>Intensité:</Text>
                   <Text style={styles.intensityValue}>{tracker.intensity}</Text>
                 </View>
               </View>
-
               {tracker.note ? (
                 <View style={styles.noteContainer}>
                   <Text style={styles.noteLabel}>Note:</Text>
                   <Text style={styles.noteContent}>{tracker.note}</Text>
                 </View>
               ) : null}
-
               <View style={styles.actionButtons}>
-                <TouchableOpacity
-                  style={styles.editButton}
-                  onPress={() => handleEditTracker(tracker)}
-                >
+                <TouchableOpacity style={styles.editButton} onPress={() => handleEditTracker(tracker)}>
                   <Text style={styles.editButtonText}>Modifier</Text>
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => handleDeleteTracker(tracker.id)}
-                >
+                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteTracker(tracker.id)}>
                   <Text style={styles.deleteButtonText}>Supprimer</Text>
                 </TouchableOpacity>
               </View>
@@ -213,32 +178,21 @@ const JournalPage = () => {
           );
         })
       )}
-
-      {/* Modal pour modifier un tracker */}
+      {/* Modal d'édition */}
       <Modal visible={editModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Modifier l'émotion</Text>
-
             <Text style={styles.modalSubtitle}>Intensité</Text>
             <View style={styles.intensityEditContainer}>
-              <TouchableOpacity
-                style={styles.intensityButton}
-                onPress={() => setEditIntensity(Math.max(1, editIntensity - 1))}
-              >
+              <TouchableOpacity style={styles.intensityButton} onPress={() => setEditIntensity(Math.max(1, editIntensity - 1))}>
                 <Text style={styles.intensityButtonText}>-</Text>
               </TouchableOpacity>
-
               <Text style={styles.intensityEditValue}>{editIntensity}</Text>
-
-              <TouchableOpacity
-                style={styles.intensityButton}
-                onPress={() => setEditIntensity(Math.min(10, editIntensity + 1))}
-              >
+              <TouchableOpacity style={styles.intensityButton} onPress={() => setEditIntensity(Math.min(10, editIntensity + 1))}>
                 <Text style={styles.intensityButtonText}>+</Text>
               </TouchableOpacity>
             </View>
-
             <Text style={styles.modalSubtitle}>Note</Text>
             <TextInput
               style={styles.input}
@@ -248,11 +202,9 @@ const JournalPage = () => {
               multiline
               numberOfLines={4}
             />
-
             <TouchableOpacity style={styles.saveButton} onPress={handleSaveEdit}>
               <Text style={styles.saveButtonText}>Enregistrer</Text>
             </TouchableOpacity>
-
             <TouchableOpacity style={styles.cancelButton} onPress={() => setEditModalVisible(false)}>
               <Text style={styles.cancelButtonText}>Annuler</Text>
             </TouchableOpacity>
@@ -262,6 +214,7 @@ const JournalPage = () => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -281,10 +234,11 @@ const styles = StyleSheet.create({
     color: "#003f40",
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "bold",
-    marginBottom: 16,
-    color: "#003f40",
+    marginBottom: 30,
+    color: "#fff",
+    textAlign: "center",
   },
   sectionTitle: {
     fontSize: 20,
@@ -485,6 +439,25 @@ const styles = StyleSheet.create({
     color: "#334155",
     fontWeight: "600",
     fontSize: 16,
+  },
+  buttonContainer: {
+    marginTop: 20,
+    borderStyle: 'solid',
+    borderColor: '#29d683',
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 5,
+    width: 200,
+  },
+  buttonContainerLogout: {
+    marginTop: 20,
+    borderStyle: 'solid',
+    borderColor: '#29d683',
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 5,
+    backgroundColor: '#29d683',
+    width: 200,
   },
 });
 

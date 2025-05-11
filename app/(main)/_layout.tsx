@@ -28,7 +28,7 @@ export default function MainLayout() {
             title: "Journal",
             headerShown: false,
             tabBarLabel: "Journal",
-            tabBarIcon: () => <FontAwesome6 name="book" size={20}/>,
+            tabBarIcon: () => <FontAwesome6 name="book" size={20} />,
           }}
         />
         <Tabs.Screen

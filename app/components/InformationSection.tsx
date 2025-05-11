@@ -14,7 +14,6 @@ const InformationSection = () => {
       try {
         const data = await getInformations();
         setInformations(data);
-        console.log(informations)
       } catch (err) {
         setError('Erreur lors du chargement des informations.');
       } finally {

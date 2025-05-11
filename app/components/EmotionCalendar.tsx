@@ -74,17 +74,15 @@ const EmotionCalendar = () => {
     }
   }, [user?.id]);
   const handleDayPress = (date: Date) => {
-    // Vérifier si le jour est dans le futur
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     if (date > today) {
-      return; // Ne rien faire si le jour est dans le futur
+      return;
     }
 
     setSelectedDay(date);
 
-    // Vérifier si un tracker existe déjà pour cette date
     const existingTracker = trackers.find((t) =>
       (t.date || t.createdAt).startsWith(date.toISOString().slice(0, 10))
     );
@@ -112,7 +110,7 @@ const EmotionCalendar = () => {
     today.setHours(0, 0, 0, 0);
 
     if (date > today) {
-      return; // Ne rien faire si le jour est dans le futur
+      return;
     }
 
     setSelectedDay(date);

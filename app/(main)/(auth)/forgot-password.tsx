@@ -1,6 +1,5 @@
-// mobile/app/(auth)/forgot-password.tsx
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import {View, TextInput, Button, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
 import { useAuth } from '../../../context/AuthContext';
 import { router } from 'expo-router';
 
@@ -48,11 +47,14 @@ export default function ForgotPasswordScreen() {
         autoCapitalize="none"
       />
 
-      <Button
-        title={isSubmitting ? "Envoi en cours..." : "Envoyer"}
+      <TouchableOpacity
         onPress={handleSubmit}
         disabled={isSubmitting}
-      />
+      >
+        <Text style={{ color: "#fff", textAlign: "center", padding: 10, backgroundColor: "#003f40", borderRadius: 5 }}>
+          {isSubmitting ? "Envoi en cours..." : "Envoyer"}
+        </Text>
+      </TouchableOpacity>
 
       <Text
         style={styles.link}
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   link: {
-    color: 'blue',
+    color: '#003f40',
     textAlign: 'center',
     marginTop: 20,
   },

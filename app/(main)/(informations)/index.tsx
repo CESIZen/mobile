@@ -142,11 +142,10 @@ const InformationList = () => {
 
       <ScrollView style={styles.listContainer}>
         {filteredInformations.map(info => {
-          // Récupère les catégories associées à cette information
           const infoCategories = info.categories
             ? info.categories
               .map(catLink => categories.find(cat => cat.id === catLink.categoryId))
-              .filter(Boolean) // retire les undefined
+              .filter(Boolean)
             : [];
 
           return (

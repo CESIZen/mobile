@@ -5,7 +5,6 @@ const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 export async function getUsers() {
   const token = await AsyncStorage.getItem('auth_token');
-  console.log(`Token récupéré: ${token}`);
   const response = await fetch(`${API_URL}/users`, {
     headers: {
       'Authorization': `Bearer ${token}`,

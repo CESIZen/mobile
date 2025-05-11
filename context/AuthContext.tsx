@@ -13,7 +13,7 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
-  setUser: (user: User | null) => void; // <-- Ajout ici
+  setUser: (user: User | null) => void;
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -52,10 +52,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      console.log(`Tentative de connexion avec email: ${email}`);
       const result = await loginService(email, password);
 
-      // Stocker les infos d'authentification
       await SecureStore.setItemAsync('auth_token', result.token);
       await AsyncStorage.setItem('@auth_user', JSON.stringify(result.user));
 
@@ -72,7 +70,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   async function register(name: string, email: string, password: string) {
-    console.log(JSON.stringify({ name, email, password }));
     const response = await fetch("http://192.168.1.124:3000/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -80,7 +77,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     if (!response.ok) {
       const error = await response.json();
-      console.log("Erreur backend register:", error);
       throw new Error(error.message || "Échec de l'inscription");
     }
     return response.json();
@@ -125,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={{
       user,
-      setUser, // <-- Ajout ici
+      setUser,
       token,
       isLoading,
       login,

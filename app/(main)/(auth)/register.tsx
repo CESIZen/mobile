@@ -20,7 +20,6 @@ export default function RegisterScreen() {
       return;
     }
     try {
-      console.log("Données envoyées au register :", { name, email, password });
       await register(name, email, password);
 
       router.replace("/");

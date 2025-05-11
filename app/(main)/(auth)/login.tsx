@@ -1,4 +1,3 @@
-// mobile/app/(auth)/login.tsx
 import React, { useState, useEffect } from 'react';
 import {View, TextInput, Button, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
 import { useAuth } from '../../../context/AuthContext';

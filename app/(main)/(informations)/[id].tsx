@@ -22,7 +22,6 @@ const InformationDetails = () => {
         const allCategories = await getCategories();
         const allUsers = await getUsers();
 
-        // On enrichit chaque info avec les vraies catégories
         const enriched = data.map((info: any) => {
           let infoCategories: any[] = [];
           if (Array.isArray(info.categories)) {

@@ -41,8 +41,6 @@ const decodeToken = (token: string): DecodedToken => {
 };
 
 export const login = async (email: string, password: string) => {
-  console.log(`Tentative de connexion à ${API_URL}/auth/login avec email: ${email}`);
-
   try {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
@@ -52,8 +50,6 @@ export const login = async (email: string, password: string) => {
       body: JSON.stringify({ email, password }),
     });
 
-    console.log('Statut de la réponse:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Erreur de connexion:', errorText);
@@ -61,7 +57,6 @@ export const login = async (email: string, password: string) => {
     }
 
     const data: LoginResponse = await response.json();
-    console.log('Données reçues:', data);
 
     if (data.user) {
       return {
@@ -88,7 +83,6 @@ export const login = async (email: string, password: string) => {
 };
 
 export const register = async (name: string, email: string, password: string) => {
-  console.log(`Tentative d'inscription à ${API_URL}/auth/register avec email: ${email}`);
 
   try {
     const response = await fetch(`${API_URL}/auth/register`, {
@@ -99,8 +93,6 @@ export const register = async (name: string, email: string, password: string) =>
       body: JSON.stringify({ name, email, password }),
     });
 
-    console.log('Statut de la réponse:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Erreur d\'inscription:', errorText);
@@ -108,9 +100,7 @@ export const register = async (name: string, email: string, password: string) =>
     }
 
     const data: LoginResponse = await response.json();
-    console.log('Données reçues:', data);
 
-    // Vérifier si la réponse contient déjà les informations utilisateur
     if (data.user) {
       return {
         user: data.user,
@@ -118,7 +108,6 @@ export const register = async (name: string, email: string, password: string) =>
       };
     }
 
-    // Sinon, décoder le token pour obtenir les infos utilisateur
     const token = data.access_token;
     const decoded = decodeToken(token);
 

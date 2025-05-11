@@ -10,13 +10,10 @@ export interface Category {
 }
 
 export const getCategories = async (): Promise<Category[]> => {
-  console.log("Réponse de l'API :");
   const response = await fetch(`${API_URL}/categories`);
-  console.log("Réponse de l'API :", response);
   if (!response.ok) {
     throw new Error("Erreur lors de la récupération des catégories");
   }
-  console.log("Réponse de l'API :", response);
   return response.json();
 };
 

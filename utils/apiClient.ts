@@ -14,18 +14,13 @@ export const apiClient = async (endpoint: string, options: RequestInit = {}) => 
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    console.log(`Requête vers ${API_URL}${endpoint}`);
-
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       headers,
     });
 
-    console.log(`Réponse: ${response.status}`);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Erreur ${response.status}:`, errorText);
 
       let errorMessage;
       try {
@@ -36,13 +31,10 @@ export const apiClient = async (endpoint: string, options: RequestInit = {}) => 
       }
       throw new Error(errorMessage);
     }
-
-    // S'il n'y a pas de contenu, retourner null
     if (response.status === 204) {
       return null;
     }
 
-    // Essayer de parser la réponse en JSON
     const data = await response.json();
     return data;
   } catch (error) {

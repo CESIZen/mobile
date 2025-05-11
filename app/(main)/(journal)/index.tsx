@@ -7,7 +7,6 @@ import EmotionReport from "../../components/EmotionRapport";
 import { useAuth } from '../../../context/AuthContext';
 import { router } from 'expo-router';
 
-// Définition des types pour éviter les erreurs TypeScript
 type Emotion = { id: number; name: string; color: string; };
 type Tracker = { id: number; emotionId: number; date?: string; createdAt?: string; intensity: number; note?: string; };
 
@@ -112,7 +111,6 @@ const JournalPage = () => {
     });
   };
 
-  // Affichage des boutons si non connecté
   if (!user) {
     return (
       <View style={[styles.container, { justifyContent: "center", alignItems: "center", backgroundColor: "#003f40" }]}>
